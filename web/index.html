@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- Body here just to make live server work -->
+<body>
+<title>Bookshelf</title>
+<link rel="stylesheet" href="style.css">
+<div id="template-store">
+    <div id="template-store-login">
+        <p>Email:</p>
+        <input type="text" id="login-email" class="text-input" placeholder="deeznuts@example.com" required>
+        <br><br>
+        <p>Password:</p>
+        <input type="text" id="login-paswd" class="text-input" placeholder="1234..." required>
+        <br><br>
+        <button onclick="logInButtonLogic()">Log in</button><br>
+        Don't have account? <a href="?page=register">Sign in</a>
+    </div>
+    <div id="template-store-register">
+        <p>Username:</p>
+        <input type="text" id="reg-username" class="text-input" required>
+        <br><br>
+        <p>Email:</p>
+        <input type="text" id="reg-email" class="text-input" placeholder="deeznuts@example.com" required>
+        <br><br>
+        <p>Password:</p>
+        <input type="text" id="reg-paswd" class="text-input" placeholder="STRONG PASSWORD" required>
+        <br><br>
+        <button onclick="signUpButtonLogic()">Create account</button><br>
+    </div>
+    <div id="template-store-index">
+        <h1>Welcome to the bookshelf!</h1>
+        <h4>Books everywhere here LOL</h4>
+        <a href="?page=register">Join today!</a>
+    </div>
+    <div id="template-store-404">
+        <h1>404: Page not found!</h1>
+    </div>
+</div>
+<div class="header">
+    <a class="header-a" href="?page=login">Log in</a>
+    <a class="header-a" href="?page=register">Sign up</a>
+</div>
+<div class="content">
+    <div class="content-body" id="template-store-injector">
+    </div>
+</div>
+<script src="./script.js"></script>
+</body>
