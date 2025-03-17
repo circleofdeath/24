@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bookshelf app</title>
+        <script>
+            async function sendAuth() {
+                const r = await fetch('/service/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token: localStorage.getItem('auth_token') }),
+                });
+
+                return r;
+            }
+
+            async function getUserData() {
+                const r = await sendAuth();
+                if(r.status == 404 || r.status == 401) {
+                    localStorage.removeItem('auth_token');
+                    window.location.replace('/');
+                }
+
+                return r.json();
+            }
+
+            (async () => {
+                const path = window.location.pathname;
+                const s = sendAuth().status;
+                if(path != '/login' && path != '/signup' && path != '/' && path != '') {
+                    console.log('Accessing page: ' + path);
+                    if(s == 404 || s == 401) {
+                        localStorage.removeItem('auth_token');
+                        window.location.replace('/');
+                    } else {
+                        document.addEventListener('DOMContentLoaded', async () => {
+                            const d = await getUserData();
+
+                            if(path == '/dashboard') {
+                                $('n12').innerHTML = `Hello, ${d.username}`;
+                            }
+                        });
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    if(s == 404 || s == 401 || localStorage.getItem('auth_token') == null) {
+                        $('menu-buttons').innerHTML = `
+                            <a class="a2" href="/login">Log in</a>
+                            <a class="a2" href="/signup">Sign up</a>
+                        `;
+                    } else {
+                        $('menu-buttons').innerHTML = `
+                            <a class="a2" href="/books">Books</a>
+                            <a class="a2" href="/dashboard">Dashboard</a>
+                            <a class="a a2" onclick="localStorage.removeItem('auth_token');window.location.replace('/');">Log out</a>
+                        `;
+                    }
+                });
+            })();
+
+            const $ = (id) => document.getElementById(id);
+
+            async function loginButtonFunc() {
+                const b = await fetch('/service/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: $('username').value,
+                        password: $('password').value
+                    })
+                });
+
+                if(b.status == 401) {
+                    $('output').innerHTML = 'Password or username are incorrect!';
+                } else if(b.status == 404) {
+                    $('output').innerHTML = 'User with this name not found!';
+                } else if(b.status == 200) {
+                    const user = await b.json();
+                    localStorage.setItem('auth_token', user.token);
+                    window.location.replace('/dashboard');
+                } else {
+                    $('output').innerHTML = `Unexpected error happened: ${b.status}`;
+                }
+            };
+
+            async function registerButtonFunc() {
+                const b = await fetch('/service/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: $('username').value,
+                        password: $('password').value
+                    })
+                });
+
+                if(b.status == 401) {
+                    $('output').innerHTML = 'Password or username are incorrect!';
+                } else if(b.status == 200) {
+                    const user = b.json();
+                    localStorage.setItem('auth_token', user.token);
+                    window.location.replace('/dashboard');
+                } else {
+                    $('output').innerHTML = `Unexpected error happened: ${b.status}`;
+                }
+            };
+
+            async function createBook() {
+                const b = await fetch('/service/cbook', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        auth: {
+                            token: localStorage.getItem('auth_token'),
+                        },
+                        name: $('name').value,
+                        content: $('content').value
+                    })
+                }).catch(console.error);
+
+                if(b.status == 401) {
+                    $('book-output').innerHTML = 'Failed to create book!';
+                } else if(b.status == 200) {
+                    $('book-output').innerHTML = 'Create successfully!';
+                } else {
+                    $('book-output').innerHTML = 'Idk if it was created: ' + b.status;
+                }
+            };
+        </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            #menu {
+                background-color: brown;
+                color: white;
+                width: calc(100vw - 10px);
+                height: 50px;
+                display: flex;
+                padding-left: 10px;
+            }
+
+            #menu-buttons {
+                flex-grow: 1;
+                gap: 10px;
+                display: flex;
+                justify-content: right;
+                align-items: center;
+                padding-right: 10px;
+            }
+
+            #pane {
+                width: 100vw;
+                height: calc(100vh - 50px);
+                background-color: gainsboro;
+                display: flex;
+                align-items: center;
+                justify-items: center;
+                justify-content: center;
+                overflow: auto;
+            }
+
+            #pane-c {
+                background-color: white;
+                padding: 10px;
+                margin-top: -25px;
+            }
+
+            #loading-indicator {
+                pointer-events: none;
+                opacity: 0;
+            }
+
+            #output {
+                color: red;
+            }
+
+            .a2 {
+                padding: 2px;
+                background-color: white;
+            }
+
+            .a {
+                display: inline;
+                color: blue;
+                text-decoration: underline;
+            }
+
+            .a:hover {
+                color: purple;
+                cursor: pointer;
+            }
+
+            .a:active {
+                color: red;
+            }
+
+            input[type="text"], input[type="password"] {
+                width: 300px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="menu">
+            <div>
+                <h1>Bookshelf App</h1>
+            </div>
+            <div id="menu-buttons">
+            </div>
+        </div>
+        <div id="pane">
+            <div id="pane-c">
+<D!HTML-TEMPLATE-14500$>
+            </div>
+        </div>
+    </body>
+</html>
